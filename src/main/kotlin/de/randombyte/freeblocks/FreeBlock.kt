@@ -18,11 +18,24 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
     companion object {
         lateinit var spawnCause: Cause
 
+        /**
+         * Once called at server startup.
+         */
         fun init(spawnCause: Cause, pluginInstance: Any) {
             this.spawnCause = spawnCause
             Sponge.getScheduler().createTaskBuilder().execute { ->
-                resetFallTime() // Prevents despawning
+                resetFallTime() // Prevents despawning of FallingBlocks
             }.intervalTicks(1).submit(pluginInstance)
+        }
+
+        fun fromArmorStand(armorStand: Entity): FreeBlock? {
+            fun List<Entity>.findByType(type: EntityType) = find { it.type.equals(type) }
+
+            val shulker = armorStand.passengers.findByType(EntityTypes.SHULKER)
+            val fallingBlock = armorStand.passengers.findByType(EntityTypes.FALLING_BLOCK)
+            return if (armorStand.passengers.size == 2 && shulker != null && fallingBlock != null) {
+                FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
+            } else null
         }
 
         fun create(location: Location<out Extent>, blockState: BlockState): FreeBlock {

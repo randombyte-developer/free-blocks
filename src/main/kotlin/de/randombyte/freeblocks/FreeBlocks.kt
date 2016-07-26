@@ -9,6 +9,7 @@ import org.spongepowered.api.config.DefaultConfig
 import org.spongepowered.api.data.key.Keys
 import org.spongepowered.api.data.property.block.SolidCubeProperty
 import org.spongepowered.api.data.type.HandTypes
+import org.spongepowered.api.entity.EntityTypes
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
 import org.spongepowered.api.event.block.InteractBlockEvent
@@ -16,10 +17,12 @@ import org.spongepowered.api.event.cause.Cause
 import org.spongepowered.api.event.cause.NamedCause
 import org.spongepowered.api.event.cause.entity.spawn.SpawnCause
 import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
+import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
 import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.plugin.Plugin
+import org.spongepowered.api.text.Text
 
 @Plugin(id = FreeBlocks.ID, name = FreeBlocks.NAME, version = FreeBlocks.VERSION, authors = arrayOf(FreeBlocks.AUTHOR))
 class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRoot = true) val configLoader: ConfigurationLoader<CommentedConfigurationNode>) {
@@ -41,10 +44,11 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     }
 
     @Listener
-    fun featherRightClick(event: InteractBlockEvent.Secondary, @First player: Player) {
+    fun featherRightClickOnBlock(event: InteractBlockEvent.Secondary, @First player: Player) {
         if (player.getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false) {
             if (player.getOrElse(Keys.IS_SNEAKING, false)) {
                 // Switch block movement direction
+                player.sendMessage(Text.of("Switch direction"))
             } else {
                 // Select block
                 if (event.targetBlock.getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false) {
@@ -52,7 +56,19 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
                     val targetLocation = event.targetBlock.location.orElseThrow {
                         RuntimeException("Couldn't get location of block that was right clicked!")
                     }
+
                     val freeBlock = FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block)
+                }
+            }
+        }
+    }
+
+    @Listener
+    fun featherRightClick(event: InteractEntityEvent.Secondary, @First player: Player) {
+        if (event.targetEntity.type.equals(EntityTypes.SHULKER)) {
+            event.targetEntity.vehicle.ifPresent { vehicle ->
+                if (FreeBlock.fromArmorStand(vehicle) != null) {
+                    player.sendMessage(Text.of("FreeBlock found!"))
                 }
             }
         }
