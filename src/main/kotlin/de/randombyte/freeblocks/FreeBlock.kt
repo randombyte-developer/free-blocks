@@ -18,6 +18,9 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
     companion object {
         lateinit var spawnCause: Cause
 
+        var selectedFreeBlocks = listOf<FreeBlock>()
+            private set
+
         /**
          * Once called at server startup.
          */
@@ -34,7 +37,9 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             val shulker = armorStand.passengers.findByType(EntityTypes.SHULKER)
             val fallingBlock = armorStand.passengers.findByType(EntityTypes.FALLING_BLOCK)
             return if (armorStand.passengers.size == 2 && shulker != null && fallingBlock != null) {
-                FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
+                val freeBlock = FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
+                freeBlock.selected = shulker.getOrElse(Keys.GLOWING, false)
+                return freeBlock
             } else null
         }
 
@@ -88,4 +93,13 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             }
         }
     }
+
+    var selected = false
+        set(value) {
+            val selectedIndex = selectedFreeBlocks.indexOfFirst { it.armorStand.uniqueId.equals(armorStand.uniqueId) }
+            if (selectedIndex < 0 && value) selectedFreeBlocks += this
+            else if (selectedIndex > 0 && !value) selectedFreeBlocks -= selectedFreeBlocks[selectedIndex]
+            shulker.offer(Keys.GLOWING, value)
+            field = value
+        }
 }

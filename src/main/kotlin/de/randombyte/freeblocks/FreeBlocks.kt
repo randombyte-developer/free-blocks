@@ -5,6 +5,7 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.loader.ConfigurationLoader
 import org.slf4j.Logger
 import org.spongepowered.api.Sponge
+import org.spongepowered.api.block.BlockSnapshot
 import org.spongepowered.api.config.DefaultConfig
 import org.spongepowered.api.data.key.Keys
 import org.spongepowered.api.data.property.block.SolidCubeProperty
@@ -12,6 +13,7 @@ import org.spongepowered.api.data.type.HandTypes
 import org.spongepowered.api.entity.EntityTypes
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
+import org.spongepowered.api.event.action.InteractEvent
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.cause.Cause
 import org.spongepowered.api.event.cause.NamedCause
@@ -43,33 +45,35 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         logger.info("$NAME loaded: $VERSION")
     }
 
-    @Listener
-    fun featherRightClickOnBlock(event: InteractBlockEvent.Secondary, @First player: Player) {
-        if (player.getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false) {
-            if (player.getOrElse(Keys.IS_SNEAKING, false)) {
-                // Switch block movement direction
-                player.sendMessage(Text.of("Switch direction"))
-            } else {
-                // Select block
-                if (event.targetBlock.getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false) {
-                    // Is representable by a FallingBlock and has the same hitbox as a shulker
-                    val targetLocation = event.targetBlock.location.orElseThrow {
-                        RuntimeException("Couldn't get location of block that was right clicked!")
-                    }
+    fun Player.isHoldingFeather() = getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false
+    fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)!!
+    fun BlockSnapshot.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
 
-                    val freeBlock = FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block)
-                }
-            }
+    @Listener
+    fun featherRightClick(event: InteractEvent, @First player: Player) {
+        if (player.isHoldingFeather() && player.isSneaking()) {
+            // Switch block movement direction
+            player.sendMessage(Text.of("Switch direction"))
         }
     }
 
     @Listener
-    fun featherRightClick(event: InteractEntityEvent.Secondary, @First player: Player) {
-        if (event.targetEntity.type.equals(EntityTypes.SHULKER)) {
+    fun featherRightClickOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
+        if (player.isHoldingFeather() && !player.isSneaking() && event.targetBlock.isSolid()) {
+            val targetLocation = event.targetBlock.location.orElseThrow {
+                RuntimeException("Couldn't get location of block that was right clicked!")
+            }
+            val freeBlock = FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block)
+            freeBlock.selected = true
+        }
+    }
+
+    @Listener
+    fun featherRightClickOnShulker(event: InteractEntityEvent.Secondary.MainHand, @First player: Player) {
+        if (player.isHoldingFeather() && !player.isSneaking() && event.targetEntity.type.equals(EntityTypes.SHULKER)) {
             event.targetEntity.vehicle.ifPresent { vehicle ->
-                if (FreeBlock.fromArmorStand(vehicle) != null) {
-                    player.sendMessage(Text.of("FreeBlock found!"))
-                }
+                val freeBlock = FreeBlock.fromArmorStand(vehicle)
+                if (freeBlock != null) freeBlock.selected = !freeBlock.selected
             }
         }
     }
