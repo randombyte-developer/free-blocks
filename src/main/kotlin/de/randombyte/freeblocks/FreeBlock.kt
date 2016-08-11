@@ -18,6 +18,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
     companion object {
         private var initialized = false
         private lateinit var spawnCause: Cause
+        private lateinit var worldModiferCause: Cause
 
         var selectedFreeBlocks = listOf<FreeBlock>()
             private set
@@ -25,9 +26,10 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
         /**
          * Called once at server startup.
          */
-        fun init(spawnCause: Cause, pluginInstance: Any) {
+        fun init(spawnCause: Cause, worldModiferCause: Cause, pluginInstance: Any) {
             if (initialized) throw IllegalStateException("Can't initialize twice!")
             this.spawnCause = spawnCause
+            this.worldModiferCause = worldModiferCause
             Sponge.getScheduler().createTaskBuilder().execute { ->
                 resetFallTime() // Prevents despawning of FallingBlocks
             }.intervalTicks(1).submit(pluginInstance)
@@ -40,6 +42,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             if (armorStand.passengers.size != 2) return null
             val shulker = armorStand.passengers.findByType(EntityTypes.SHULKER)
             val fallingBlock = armorStand.passengers.findByType(EntityTypes.FALLING_BLOCK)
+
             return if (shulker != null && fallingBlock != null) {
                 val freeBlock = FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
                 freeBlock.selected = shulker.getOrElse(Keys.GLOWING, false)
@@ -48,7 +51,8 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
         }
 
         fun create(location: Location<out Extent>, blockState: BlockState): FreeBlock {
-            if (location.hasBlock()) location.block = BlockTypes.AIR.defaultState
+            if (location.hasBlock()) location.setBlock(BlockTypes.AIR.defaultState, worldModiferCause)
+
             val armorStand = spawnArmorStand(location)
             val fallingBlock = spawnFallingBlock(location, blockState)
             val shulker = spawnShulker(location)
@@ -59,9 +63,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
 
         private fun spawnEntity(location: Location<out Extent>, entityType: EntityType,
                                 modifyEntityFunc: (Entity) -> Unit): Entity {
-            val entity = location.extent.createEntity(entityType, location.position).orElseThrow {
-                RuntimeException("Couldn't create ${entityType.name} at $location!")
-            }
+            val entity = location.extent.createEntity(entityType, location.position)
             modifyEntityFunc.invoke(entity)
             if (!location.extent.spawnEntity(entity, spawnCause))
                 throw RuntimeException("Couldn't spawn ${entityType.name} at $location!")
