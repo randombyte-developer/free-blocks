@@ -16,7 +16,8 @@ import org.spongepowered.api.world.extent.Extent
 
 class FreeBlock private constructor(val location: Location<out Extent>, val armorStand: Entity, val fallingBlock: Entity, val shulker: Entity) {
     companion object {
-        lateinit var spawnCause: Cause
+        private var initialized = false
+        private lateinit var spawnCause: Cause
 
         var selectedFreeBlocks = listOf<FreeBlock>()
             private set
@@ -25,10 +26,12 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
          * Called once at server startup.
          */
         fun init(spawnCause: Cause, pluginInstance: Any) {
+            if (initialized) throw IllegalStateException("Can't initialize twice!")
             this.spawnCause = spawnCause
             Sponge.getScheduler().createTaskBuilder().execute { ->
                 resetFallTime() // Prevents despawning of FallingBlocks
             }.intervalTicks(1).submit(pluginInstance)
+            initialized = true
         }
 
         fun fromArmorStand(armorStand: Entity): FreeBlock? {
