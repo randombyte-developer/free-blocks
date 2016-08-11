@@ -37,9 +37,10 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
         fun fromArmorStand(armorStand: Entity): FreeBlock? {
             fun List<Entity>.findByType(type: EntityType) = find { it.type.equals(type) }
 
+            if (armorStand.passengers.size != 2) return null
             val shulker = armorStand.passengers.findByType(EntityTypes.SHULKER)
             val fallingBlock = armorStand.passengers.findByType(EntityTypes.FALLING_BLOCK)
-            return if (armorStand.passengers.size == 2 && shulker != null && fallingBlock != null) {
+            return if (shulker != null && fallingBlock != null) {
                 val freeBlock = FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
                 freeBlock.selected = shulker.getOrElse(Keys.GLOWING, false)
                 return freeBlock
