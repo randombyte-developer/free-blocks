@@ -22,7 +22,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             private set
 
         /**
-         * Once called at server startup.
+         * Called once at server startup.
          */
         fun init(spawnCause: Cause, pluginInstance: Any) {
             this.spawnCause = spawnCause
