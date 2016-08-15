@@ -41,8 +41,8 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     fun onInit(event: GameInitializationEvent) {
         val spawnCause = Cause.of(NamedCause.source(SpawnCause.builder().type(SpawnTypes.PLUGIN).build()),
                 NamedCause.owner(Sponge.getPluginManager().fromInstance(this).get()))
-        val worldModiferCause = Cause.of(NamedCause.source(Sponge.getPluginManager().fromInstance(this).get()))
-        FreeBlock.init(spawnCause, worldModiferCause, this)
+        val worldModifierCause = Cause.of(NamedCause.source(Sponge.getPluginManager().fromInstance(this).get()))
+        FreeBlock.init(spawnCause, worldModifierCause, this)
 
         logger.info("$NAME loaded: $VERSION")
     }
