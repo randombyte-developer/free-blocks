@@ -48,7 +48,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     }
 
     fun Player.isHoldingFeather() = getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false
-    fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)!!
+    fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)
     fun BlockSnapshot.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
 
     @Listener
