@@ -1,5 +1,6 @@
 package de.randombyte.freeblocks
 
+import com.flowpowered.math.vector.Vector3d
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.block.BlockState
 import org.spongepowered.api.block.BlockTypes
@@ -92,6 +93,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             offer(Keys.INVISIBLE, true)
             offer(Keys.ARMOR_STAND_HAS_GRAVITY, false)
             offer(Keys.ARMOR_STAND_MARKER, true)
+            rotation = Vector3d.ZERO // without explicitly setting this it is always a bit off
         })
 
         /**
@@ -116,6 +118,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             offer(Keys.PERSISTS, true)
             offer(getOrCreate(PotionEffectData::class.java).get().effects()
                     .add(PotionEffect.of(PotionEffectTypes.INVISIBILITY, 0, Int.MAX_VALUE)))
+            rotation = Vector3d.ZERO // without explicitly setting this it is always a bit off
         })
 
         /**
