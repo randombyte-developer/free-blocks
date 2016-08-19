@@ -5,9 +5,9 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.loader.ConfigurationLoader
 import org.slf4j.Logger
 import org.spongepowered.api.Sponge
-import org.spongepowered.api.block.BlockSnapshot
 import org.spongepowered.api.config.DefaultConfig
 import org.spongepowered.api.data.key.Keys
+import org.spongepowered.api.data.property.PropertyHolder
 import org.spongepowered.api.data.property.block.SolidCubeProperty
 import org.spongepowered.api.data.type.HandTypes
 import org.spongepowered.api.entity.EntityTypes
@@ -49,13 +49,13 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
 
     fun Player.isHoldingFeather() = getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false
     fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)
-    fun BlockSnapshot.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
+    fun PropertyHolder.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
 
     @Listener
     fun featherRightClick(event: InteractEvent, @First player: Player) {
         if (player.isHoldingFeather() && player.isSneaking()) {
             // Switch block movement direction
-            player.sendMessage(Text.of("Switch direction"))
+            player.sendMessage(Text.of("Switched direction"))
         }
     }
 
@@ -65,8 +65,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
             val targetLocation = event.targetBlock.location.orElseThrow {
                 RuntimeException("Couldn't get location of block that was right clicked!")
             }
-            val freeBlock = FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block)
-            freeBlock.selected = true
+            FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block).selected = true
         }
     }
 
