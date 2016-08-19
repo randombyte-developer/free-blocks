@@ -15,7 +15,7 @@ import org.spongepowered.api.scheduler.Task
 import org.spongepowered.api.world.Location
 import org.spongepowered.api.world.extent.Extent
 
-class FreeBlock private constructor(val location: Location<out Extent>, val armorStand: Entity, val fallingBlock: Entity, val shulker: Entity) {
+class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: Entity, val shulker: Entity) {
     companion object {
         private var initialized = false
         private lateinit var spawnCause: Cause
@@ -48,7 +48,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             val fallingBlock = armorStand.passengers.findByType(EntityTypes.FALLING_BLOCK)
 
             return if (shulker != null && fallingBlock != null) {
-                val freeBlock = FreeBlock(armorStand.location, armorStand, fallingBlock, shulker)
+                val freeBlock = FreeBlock(armorStand, fallingBlock, shulker)
                 freeBlock.selected = shulker.getOrElse(Keys.GLOWING, false)
                 return freeBlock
             } else null
@@ -67,7 +67,7 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
             val shulker = spawnShulker(location)
             armorStand.addPassenger(fallingBlock)
             armorStand.addPassenger(shulker)
-            return FreeBlock(location, armorStand, fallingBlock, shulker)
+            return FreeBlock(armorStand, fallingBlock, shulker)
         }
 
         /**

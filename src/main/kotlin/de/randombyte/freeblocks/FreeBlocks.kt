@@ -35,8 +35,6 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         const val AUTHOR = "RandomByte"
     }
 
-    private val selectedFreeBlocks = mutableListOf<FreeBlock>()
-
     @Listener
     fun onInit(event: GameInitializationEvent) {
         val spawnCause = Cause.of(NamedCause.source(SpawnCause.builder().type(SpawnTypes.PLUGIN).build()),
