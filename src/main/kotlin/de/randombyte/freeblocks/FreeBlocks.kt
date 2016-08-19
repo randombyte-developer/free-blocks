@@ -26,6 +26,8 @@ import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.plugin.Plugin
 import org.spongepowered.api.text.Text
+import org.spongepowered.api.world.Location
+import org.spongepowered.api.world.extent.Extent
 
 @Plugin(id = FreeBlocks.ID, name = FreeBlocks.NAME, version = FreeBlocks.VERSION, authors = arrayOf(FreeBlocks.AUTHOR))
 class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRoot = true) val configLoader: ConfigurationLoader<CommentedConfigurationNode>) {
@@ -49,6 +51,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     fun Player.isHoldingFeather() = getItemInHand(HandTypes.MAIN_HAND).orElse(null)?.item?.equals(ItemTypes.FEATHER) ?: false
     fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)
     fun PropertyHolder.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
+    fun Location<out Extent>.getCenter() = Location(extent, blockPosition.toDouble().add(0.5, 0.0, 0.5))
 
     // Player interactions start
     @Listener
@@ -65,7 +68,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
             val targetLocation = event.targetBlock.location.orElseThrow {
                 RuntimeException("Couldn't get location of block that was right clicked!")
             }
-            FreeBlock.create(targetLocation.add(0.0, 0.3, 0.0), targetLocation.block).selected = true
+            FreeBlock.create(targetLocation.getCenter(), targetLocation.block).selected = true
         }
     }
 
