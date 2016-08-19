@@ -74,7 +74,8 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         if (player.isHoldingFeather() && !player.isSneaking() && event.targetEntity.type.equals(EntityTypes.SHULKER)) {
             event.targetEntity.vehicle.ifPresent { vehicle ->
                 val freeBlock = FreeBlock.fromArmorStand(vehicle)
-                if (freeBlock != null) freeBlock.selected = !freeBlock.selected
+                if (freeBlock != null)
+                    freeBlock.selected = !freeBlock.selected
             }
         }
     }

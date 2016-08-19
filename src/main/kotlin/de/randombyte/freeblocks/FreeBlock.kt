@@ -141,14 +141,13 @@ class FreeBlock private constructor(val location: Location<out Extent>, val armo
     var selected = false
         set(value) {
             val selectedIndex = selectedFreeBlocks.indexOfFirst { it.armorStand.uniqueId.equals(armorStand.uniqueId) }
-            val modified = if (selectedIndex < 0 && value) {
-                selectedFreeBlocks += this; true
+            if (selectedIndex < 0 && value) {
+                selectedFreeBlocks += this
+            } else if (selectedIndex > 0 && !value) {
+                selectedFreeBlocks -= selectedFreeBlocks[selectedIndex]
             }
-            else if (selectedIndex > 0 && !value) {
-                selectedFreeBlocks -= selectedFreeBlocks[selectedIndex]; true
-            } else false
 
-            if (modified) {
+            if (field != value) {
                 shulker.offer(Keys.GLOWING, value)
                 field = value
             }
