@@ -115,7 +115,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             offer(Keys.IS_SILENT, true)
             offer(Keys.PERSISTS, true)
             offer(getOrCreate(PotionEffectData::class.java).get().effects()
-                    .add(PotionEffect.of(PotionEffectTypes.INVISIBILITY, 0, Integer.MAX_VALUE)))
+                    .add(PotionEffect.of(PotionEffectTypes.INVISIBILITY, 0, Int.MAX_VALUE)))
         })
 
         /**

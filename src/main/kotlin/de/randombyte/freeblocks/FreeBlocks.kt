@@ -19,6 +19,7 @@ import org.spongepowered.api.event.cause.Cause
 import org.spongepowered.api.event.cause.NamedCause
 import org.spongepowered.api.event.cause.entity.spawn.SpawnCause
 import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
+import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
 import org.spongepowered.api.event.game.state.GameInitializationEvent
@@ -49,6 +50,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)
     fun PropertyHolder.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
 
+    // Player interactions start
     @Listener
     fun featherRightClick(event: InteractEvent, @First player: Player) {
         if (player.isHoldingFeather() && player.isSneaking()) {
@@ -75,6 +77,19 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
                 if (freeBlock != null)
                     freeBlock.selected = !freeBlock.selected
             }
+        }
+    }
+    // Player interactions end
+
+    /**
+     * Prevents a [FreeBlock] from taking damage(lava, fire, water, suffocating in blocks...)
+     */
+    @Listener
+    fun onDamageShulker(event: DamageEntityEvent) {
+        event.isCancelled = FreeBlock.getLoadedFreeBlocks().any { freeBlock ->
+            event.targetEntity.equals(freeBlock.armorStand) ||
+            event.targetEntity.equals(freeBlock.fallingBlock) ||
+            event.targetEntity.equals(freeBlock.shulker)
         }
     }
 }
