@@ -23,6 +23,7 @@ import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
 import org.spongepowered.api.event.game.state.GameInitializationEvent
+import org.spongepowered.api.event.message.MessageEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.plugin.Plugin
 import org.spongepowered.api.text.Text
@@ -82,6 +83,15 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
             }
         }
     }
+
+    @Listener
+    fun onChat(event: MessageEvent, @First player: Player) {
+        if (event.message.toPlain().contains("+")) {
+            FreeBlock.selectedFreeBlocks.forEach { it.armorStand.location = it.armorStand.location.add(0.0, 0.2, 0.0) }
+        } else {
+            FreeBlock.selectedFreeBlocks.forEach { it.armorStand.location = it.armorStand.location.add(0.0, -0.2, 0.0) }
+        }
+    }
     // Player interactions end
 
     /**
@@ -94,5 +104,6 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
             event.targetEntity.equals(freeBlock.fallingBlock) ||
             event.targetEntity.equals(freeBlock.shulker)
         }
+        logger.info("Cancelled: ${event.isCancelled}")
     }
 }

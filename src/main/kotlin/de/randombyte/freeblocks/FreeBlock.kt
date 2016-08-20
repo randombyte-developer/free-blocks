@@ -33,8 +33,15 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             this.spawnCause = spawnCause
             this.worldModiferCause = worldModiferCause
             Task.builder().execute { ->
-                resetFallTime() // Prevents despawning of FallingBlocks
+                getLoadedFreeBlocks().forEach { freeBlock ->
+                    preventFallingBlockTurningIntoNormalBlock(freeBlock.fallingBlock)
+                }
             }.intervalTicks(1).submit(pluginInstance)
+            Task.builder().intervalTicks(2000000000).execute { -> // Before FALL_TIME Int.Min_VALUE runs out
+                getLoadedFreeBlocks().forEach { freeBlock ->
+                    resetFallTime(freeBlock.fallingBlock) // Prevents despawning of FallingBlock
+                }
+            }
             initialized = true
         }
 
@@ -103,8 +110,9 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
          */
         private fun spawnFallingBlock(location: Location<out Extent>, blockState: BlockState): Entity =
                 spawnEntity(location, EntityTypes.FALLING_BLOCK, {
-                    offer(Keys.FALL_TIME, Integer.MIN_VALUE)
                     offer(Keys.FALLING_BLOCK_STATE, blockState)
+                    resetFallTime(this)
+                    preventFallingBlockTurningIntoNormalBlock(this)
         })
 
         /**
@@ -134,10 +142,12 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             }.flatten()
         }
 
-        /**
-         * Resets the fall time of [freeBlocks] to 1.
-         */
-        private fun resetFallTime(vararg freeBlocks: FreeBlock) = freeBlocks.forEach { it.fallingBlock.offer(Keys.FALL_TIME, 1) }
+        private fun resetFallTime(fallingBlock: Entity) = fallingBlock.offer(Keys.FALL_TIME, Int.MIN_VALUE)
+
+        private fun preventFallingBlockTurningIntoNormalBlock(fallingBlock: Entity) {
+            val location = fallingBlock.location
+            fallingBlock.location = Location(location.extent, location.x, -1.0, location.z)
+        }
     }
 
     // glowing effect
