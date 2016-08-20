@@ -55,7 +55,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
 
     // Player interactions start
     @Listener
-    fun featherRightClick(event: InteractEvent, @First player: Player) {
+    fun onFeatherRightClick(event: InteractEvent, @First player: Player) {
         if (player.isHoldingFeather() && player.isSneaking()) {
             // Switch block movement direction
             player.sendMessage(Text.of("Switched direction"))
@@ -63,7 +63,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     }
 
     @Listener
-    fun featherRightClickOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
+    fun onFeatherRightClickOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
         if (player.isHoldingFeather() && !player.isSneaking() && event.targetBlock.isSolid()) {
             val targetLocation = event.targetBlock.location.orElseThrow {
                 RuntimeException("Couldn't get location of block that was right clicked!")
@@ -73,7 +73,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     }
 
     @Listener
-    fun featherRightClickOnShulker(event: InteractEntityEvent.Secondary.MainHand, @First player: Player) {
+    fun onFeatherRightClickOnShulker(event: InteractEntityEvent.Secondary.MainHand, @First player: Player) {
         if (player.isHoldingFeather() && !player.isSneaking() && event.targetEntity.type.equals(EntityTypes.SHULKER)) {
             event.targetEntity.vehicle.ifPresent { vehicle ->
                 val freeBlock = FreeBlock.fromArmorStand(vehicle)
