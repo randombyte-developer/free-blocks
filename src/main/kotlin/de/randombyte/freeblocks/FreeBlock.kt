@@ -159,4 +159,5 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
 
     // The armorStand is the identification of a FreeBlock
     override fun equals(other: Any?) = other is FreeBlock && other.armorStand.uniqueId.equals(armorStand.uniqueId)
+    override fun hashCode() = armorStand.uniqueId.hashCode()
 }
