@@ -32,7 +32,6 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         FreeBlock.init(spawnCause, worldModifierCause, this)
 
         Sponge.getEventManager().registerListeners(this, PlayerEventListeners())
-
         logger.info("$NAME loaded: $VERSION")
     }
 
@@ -40,7 +39,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
      * Prevents a [FreeBlock] from taking damage(lava, fire, water, suffocating in blocks...)
      */
     @Listener
-    fun onDamageShulker(event: DamageEntityEvent) {
+    fun onDamageFreeBlock(event: DamageEntityEvent) {
         event.isCancelled = FreeBlock.getLoadedFreeBlocks().any { freeBlock ->
             event.targetEntity.equals(freeBlock.armorStand) ||
             event.targetEntity.equals(freeBlock.fallingBlock) ||
