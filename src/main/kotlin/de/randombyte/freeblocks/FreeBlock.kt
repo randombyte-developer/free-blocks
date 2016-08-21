@@ -22,8 +22,8 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         private lateinit var spawnCause: Cause
         private lateinit var worldModiferCause: Cause
 
-        var selectedFreeBlocks = listOf<FreeBlock>()
-            private set
+        private val _selectedBlocks = mutableListOf<FreeBlock>()
+        fun getSelectedBlocks() = _selectedBlocks.toList()
 
         /**
          * Called once at server startup.
@@ -150,19 +150,13 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         }
     }
 
-    // glowing effect
     var selected = false
         set(value) {
-            val selectedIndex = selectedFreeBlocks.indexOfFirst { it.armorStand.uniqueId.equals(armorStand.uniqueId) }
-            if (selectedIndex < 0 && value) {
-                selectedFreeBlocks += this
-            } else if (selectedIndex > 0 && !value) {
-                selectedFreeBlocks -= selectedFreeBlocks[selectedIndex]
-            }
-
-            if (field != value) {
-                shulker.offer(Keys.GLOWING, value)
-                field = value
-            }
+            if (value) _selectedBlocks += this else _selectedBlocks -= this
+            shulker.offer(Keys.GLOWING, value)
+            field = value
         }
+
+    // The armorStand is the identification of a FreeBlock
+    override fun equals(other: Any?) = other is FreeBlock && other.armorStand.uniqueId.equals(armorStand.uniqueId)
 }

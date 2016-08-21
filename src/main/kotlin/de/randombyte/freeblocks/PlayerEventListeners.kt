@@ -11,7 +11,6 @@ import org.spongepowered.api.event.action.InteractEvent
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
-import org.spongepowered.api.event.message.MessageEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.world.Location
@@ -51,15 +50,6 @@ class PlayerEventListeners {
                 if (freeBlock != null)
                     freeBlock.selected = !freeBlock.selected
             }
-        }
-    }
-
-    @Listener
-    fun onChat(event: MessageEvent, @First player: Player) {
-        if (event.message.toPlain().contains("+")) {
-            FreeBlock.selectedFreeBlocks.forEach { it.armorStand.location = it.armorStand.location.add(0.0, 0.2, 0.0) }
-        } else {
-            FreeBlock.selectedFreeBlocks.forEach { it.armorStand.location = it.armorStand.location.add(0.0, -0.2, 0.0) }
         }
     }
 }
