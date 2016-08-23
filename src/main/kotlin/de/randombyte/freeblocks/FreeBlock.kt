@@ -22,7 +22,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         private lateinit var spawnCause: Cause
         private lateinit var worldModiferCause: Cause
 
-        private val _selectedBlocks = mutableListOf<FreeBlock>()
+        private val _selectedBlocks = mutableSetOf<FreeBlock>()
         fun getSelectedBlocks() = _selectedBlocks.toList()
 
         /**

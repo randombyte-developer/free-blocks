@@ -14,6 +14,7 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
 import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.plugin.Plugin
+import java.util.*
 
 @Plugin(id = FreeBlocks.ID, name = FreeBlocks.NAME, version = FreeBlocks.VERSION, authors = arrayOf(FreeBlocks.AUTHOR))
 class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRoot = true) val configLoader: ConfigurationLoader<CommentedConfigurationNode>) {
@@ -22,6 +23,8 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         const val NAME = "FreeBlocks"
         const val VERSION = "v0.1"
         const val AUTHOR = "RandomByte"
+
+        var currentEditor: UUID? = null
     }
 
     @Listener
