@@ -28,10 +28,10 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         /**
          * Called once at server startup.
          */
-        fun init(spawnCause: Cause, worldModiferCause: Cause, pluginInstance: Any) {
+        fun init(spawnCause: Cause, worldModifierCause: Cause, pluginInstance: Any) {
             if (initialized) throw IllegalStateException("Can't initialize twice!")
             this.spawnCause = spawnCause
-            this.worldModiferCause = worldModiferCause
+            this.worldModiferCause = worldModifierCause
             Task.builder().execute { ->
                 getLoadedFreeBlocks().forEach { freeBlock ->
                     preventFallingBlockTurningIntoNormalBlock(freeBlock.fallingBlock)
