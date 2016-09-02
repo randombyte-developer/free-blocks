@@ -14,6 +14,7 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
 import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.plugin.Plugin
+import org.spongepowered.api.util.Axis
 import java.util.*
 
 @Plugin(id = FreeBlocks.ID, name = FreeBlocks.NAME, version = FreeBlocks.VERSION, authors = arrayOf(FreeBlocks.AUTHOR))
@@ -25,6 +26,7 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         const val AUTHOR = "RandomByte"
 
         var currentEditor: UUID? = null
+        var currentMoveAxis: Axis = Axis.X
     }
 
     @Listener

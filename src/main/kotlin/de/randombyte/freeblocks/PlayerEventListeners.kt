@@ -7,7 +7,6 @@ import org.spongepowered.api.data.type.HandTypes
 import org.spongepowered.api.entity.EntityTypes
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
-import org.spongepowered.api.event.action.InteractEvent
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
@@ -26,10 +25,11 @@ class PlayerEventListeners {
     }
 
     @Listener
-    fun onFeatherRightClickSneak(event: InteractEvent, @First player: Player) {
-        if (player.isHoldingFeather() && player.isSneaking()) {
+    fun onFeatherRightClickSneakOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
+        if (FreeBlocks.currentEditor?.equals(player.uniqueId) ?: false && player.isHoldingFeather() && player.isSneaking()) {
             // Switch block movement direction
-            player.sendMessage(Text.of("Switched direction"))
+            FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
+            player.sendMessage(Text.of("Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
         }
     }
 
