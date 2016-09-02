@@ -144,9 +144,8 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
 
         private fun resetFallTime(fallingBlock: Entity) = fallingBlock.offer(Keys.FALL_TIME, Int.MIN_VALUE)
 
-        private fun preventFallingBlockTurningIntoNormalBlock(fallingBlock: Entity) {
-            val location = fallingBlock.location
-            fallingBlock.location = Location(location.extent, location.x, -1.0, location.z)
+        private fun preventFallingBlockTurningIntoNormalBlock(fallingBlock: Entity) = fallingBlock.location.run {
+            fallingBlock.location = Location(extent, x, -1.0, z) // Cool workaround
         }
     }
 
