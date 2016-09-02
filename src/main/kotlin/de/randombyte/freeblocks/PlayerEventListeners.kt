@@ -26,7 +26,7 @@ class PlayerEventListeners {
     }
 
     @Listener
-    fun onFeatherRightClick(event: InteractEvent, @First player: Player) {
+    fun onFeatherRightClickSneak(event: InteractEvent, @First player: Player) {
         if (player.isHoldingFeather() && player.isSneaking()) {
             // Switch block movement direction
             player.sendMessage(Text.of("Switched direction"))
@@ -63,10 +63,11 @@ class PlayerEventListeners {
             FreeBlocks.currentEditor = newEditor.uniqueId
             return true
         }
-        return if (!FreeBlocks.currentEditor!!.equals(newEditor.uniqueId)) { // we don't expect modification in another thread
+        // Is same UUID?
+        return if (!FreeBlocks.currentEditor!!.equals(newEditor.uniqueId)) { // we don't expect modification from another thread
             newEditor.sendMessage(Text.of(TextColors.RED,
                     "There is currently another player using this plugin that selected at least one block!"))
             false
-        } else true // Same UUID
+        } else true
     }
 }
