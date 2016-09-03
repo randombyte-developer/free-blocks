@@ -10,6 +10,7 @@ import org.spongepowered.api.event.Listener
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
+import org.spongepowered.api.event.network.ClientConnectionEvent
 import org.spongepowered.api.item.ItemTypes
 import org.spongepowered.api.text.Text
 import org.spongepowered.api.text.format.TextColors
@@ -27,7 +28,6 @@ class PlayerEventListeners {
     @Listener
     fun onFeatherRightClickSneakOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
         if (FreeBlocks.currentEditor?.equals(player.uniqueId) ?: false && player.isHoldingFeather() && player.isSneaking()) {
-            // Switch block movement direction
             FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
             player.sendMessage(Text.of("Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
         }
@@ -53,6 +53,24 @@ class PlayerEventListeners {
                 if (FreeBlock.getSelectedBlocks().isEmpty()) FreeBlocks.currentEditor = null
             }
         }
+    }
+
+    @Listener
+    fun onEditorScrolled(event: CurrentEditorScrolledEvent) {
+        event.targetEntity.sendMessage(Text.of(event.direction))
+        if (event.direction == 0) return
+
+        FreeBlock.getSelectedBlocks().forEach { freeBlock ->
+            val oldPosition = freeBlock.armorStand.location.position
+            val movement = FreeBlocks.currentMoveAxis.toVector3d().mul(event.direction.toDouble() * 0.3)
+            val newLocation = freeBlock.armorStand.location.setPosition(oldPosition.add(movement))
+            freeBlock.armorStand.location = newLocation
+        }
+    }
+
+    @Listener
+    fun onLeave(event: ClientConnectionEvent.Disconnect) {
+        if (FreeBlocks.currentEditor?.equals(event.targetEntity.uniqueId) ?: false) FreeBlocks.currentEditor = null
     }
 
     /**
