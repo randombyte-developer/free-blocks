@@ -57,12 +57,11 @@ class PlayerEventListeners {
 
     @Listener
     fun onEditorScrolled(event: CurrentEditorScrolledEvent) {
-        event.targetEntity.sendMessage(Text.of(event.direction))
         if (event.direction == 0) return
 
         FreeBlock.getSelectedBlocks().forEach { freeBlock ->
             val oldPosition = freeBlock.armorStand.location.position
-            val movement = FreeBlocks.currentMoveAxis.toVector3d().mul(event.direction.toDouble() * 0.3)
+            val movement = FreeBlocks.currentMoveAxis.toVector3d().mul(event.direction.toDouble() * 0.1)
             val newLocation = freeBlock.armorStand.location.setPosition(oldPosition.add(movement))
             freeBlock.armorStand.location = newLocation
         }
@@ -70,7 +69,10 @@ class PlayerEventListeners {
 
     @Listener
     fun onLeave(event: ClientConnectionEvent.Disconnect) {
-        if (FreeBlocks.currentEditor?.equals(event.targetEntity.uniqueId) ?: false) FreeBlocks.currentEditor = null
+        if (FreeBlocks.currentEditor?.equals(event.targetEntity.uniqueId) ?: false) {
+            FreeBlocks.currentEditor = null
+            FreeBlock.getSelectedBlocks().forEach { it.selected = false }
+        }
     }
 
     /**
