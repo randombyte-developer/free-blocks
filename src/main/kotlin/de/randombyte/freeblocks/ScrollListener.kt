@@ -19,7 +19,7 @@ object ScrollListener {
                 .execute { ->
                     if (FreeBlocks.currentEditor == null) return@execute
                     val direction = getScrollingDirection()
-                    if (Math.abs(direction) > 3) return@execute // Scrolled too fast
+                    if (Math.abs(direction) > 3) return@execute // Scrolled too fast todo
                     val event = CurrentEditorScrolledEvent(
                             FreeBlocks.currentEditor!!.toPlayer(),
                             direction,

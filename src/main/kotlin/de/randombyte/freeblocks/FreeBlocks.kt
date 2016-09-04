@@ -14,8 +14,10 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
 import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.plugin.Plugin
+import org.spongepowered.api.scheduler.Task
 import org.spongepowered.api.util.Axis
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @Plugin(id = FreeBlocks.ID, name = FreeBlocks.NAME, version = FreeBlocks.VERSION, authors = arrayOf(FreeBlocks.AUTHOR))
 class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRoot = true) val configLoader: ConfigurationLoader<CommentedConfigurationNode>) {
@@ -25,8 +27,13 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         const val VERSION = "v0.1"
         const val AUTHOR = "RandomByte"
 
+        const val DEBUG = true
+
         var currentEditor: UUID? = null
         var currentMoveAxis: Axis = Axis.X
+        var currentMoveSpeed: Double = 0.1
+
+        var blockedDamagePerSecond = 0
     }
 
     @Listener
@@ -40,6 +47,13 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
 
         Sponge.getEventManager().registerListeners(this, PlayerEventListeners())
         logger.info("$NAME loaded: $VERSION")
+
+        if (DEBUG) {
+            Task.builder().async().interval(1, TimeUnit.SECONDS).execute { ->
+                logger.info("Blocked damage events per second: $blockedDamagePerSecond")
+                blockedDamagePerSecond = 0
+            }.submit(this)
+        }
     }
 
     /**
@@ -47,11 +61,13 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
      */
     @Listener
     fun onDamageFreeBlock(event: DamageEntityEvent) {
-        event.isCancelled = FreeBlock.getLoadedFreeBlocks().any { freeBlock ->
+        if (FreeBlock.getLoadedFreeBlocks().any { freeBlock ->
             event.targetEntity.equals(freeBlock.armorStand) ||
             event.targetEntity.equals(freeBlock.fallingBlock) ||
             event.targetEntity.equals(freeBlock.shulker)
+        }) {
+            event.isCancelled = true
+            if (DEBUG) blockedDamagePerSecond++
         }
-        logger.info("Cancelled: ${event.isCancelled}")
     }
 }
