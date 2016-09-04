@@ -2,35 +2,35 @@ package de.randombyte.freeblocks
 
 import org.spongepowered.api.Sponge
 import org.spongepowered.api.entity.living.player.Player
-import org.spongepowered.api.event.cause.Cause
-import org.spongepowered.api.event.cause.NamedCause
+import org.spongepowered.api.event.Listener
+import org.spongepowered.api.event.filter.cause.Root
+import org.spongepowered.api.event.item.inventory.ChangeInventoryEvent
 import org.spongepowered.api.item.inventory.entity.Hotbar
-import org.spongepowered.api.scheduler.Task
 import org.spongepowered.api.service.user.UserStorageService
 import java.util.*
 
 object ScrollListener {
-    private var initialized = false
+    private lateinit var plugin: FreeBlocks
 
     fun init(plugin: FreeBlocks) {
-        if (initialized) throw IllegalStateException("Can't initialize twice!")
-        Task.builder()
-                .intervalTicks(1)
-                .execute { ->
-                    if (FreeBlocks.currentEditor == null) return@execute
-                    val direction = getScrollingDirection()
-                    if (Math.abs(direction) > 3) return@execute // Scrolled too fast todo
-                    val event = CurrentEditorScrolledEvent(
-                            FreeBlocks.currentEditor!!.toPlayer(),
-                            direction,
-                            Cause.of(NamedCause.source(plugin)))
-                    Sponge.getEventManager().post(event)
-                }.submit(plugin)
-        initialized = true
+        this.plugin = plugin
+        Sponge.getEventManager().registerListeners(plugin, this)
     }
 
     private var lastEditor: UUID? = null
     private var lastSelectedHotbarSlot = -1
+
+    @Listener
+    fun onChangeSelectedSlot(event: ChangeInventoryEvent.Held, @Root player: Player) {
+        if (FreeBlocks.currentEditor == null) return
+        val direction = getScrollingDirection()
+        if (direction == 0 || Math.abs(direction) > 3) return // Scrolled too fast todo
+        val scrolledEvent = CurrentEditorScrolledEvent(
+                FreeBlocks.currentEditor!!.toPlayer(),
+                direction,
+                event.cause)
+        Sponge.getEventManager().post(scrolledEvent)
+    }
 
     /**
      * Returns what the currentEditor has done.
