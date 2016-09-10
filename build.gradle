@@ -13,6 +13,7 @@ repositories {
 
 spongestart {
     eula true
+    spongeVanillaBuild "1.10.2-5.0.0-BETA-113"
 }
 
 configurations {
