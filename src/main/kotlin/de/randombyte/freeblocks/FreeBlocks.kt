@@ -27,11 +27,14 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         const val VERSION = "v0.1"
         const val AUTHOR = "RandomByte"
 
-        const val DEBUG = true
+        const val DEBUG = false
 
         var currentEditor: UUID? = null
         var currentMoveAxis: Axis = Axis.X
-        var currentMoveSpeed: Double = 0.1
+        var currentMoveSpeedIndex: Int = 12
+
+        val movementSpeeds =
+                listOf(0.005, 0.01, 0.02, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.8, 1.0, 2.0, 5.0, 10.0)
 
         var blockedDamagePerSecond = 0
     }

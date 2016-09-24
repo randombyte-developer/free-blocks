@@ -58,7 +58,9 @@ class PlayerEventListeners {
     @Listener
     fun onEditorSneakScrolled(event: CurrentEditorScrolledEvent) {
         if (event.targetEntity.isSneaking()) {
-            event.targetEntity.sendMessage(Text.of("Changed moveSpeed: ${event.direction}"))
+            FreeBlocks.currentMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
+                    .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
+            event.targetEntity.sendMessage(Text.of("Changed moveSpeed: ${FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex]}"))
         }
     }
 
@@ -69,7 +71,8 @@ class PlayerEventListeners {
         if (!event.targetEntity.isSneaking()) {
             FreeBlock.getSelectedBlocks().forEach { freeBlock ->
                 val oldPosition = freeBlock.armorStand.location.position
-                val movement = FreeBlocks.currentMoveAxis.toVector3d().mul(event.direction.toDouble() * 0.005)
+                val movement = FreeBlocks.currentMoveAxis.toVector3d()
+                        .mul(event.direction.toDouble() * FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex])
                 val newLocation = freeBlock.armorStand.location.setPosition(oldPosition.add(movement))
                 freeBlock.armorStand.location = newLocation
             }
