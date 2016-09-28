@@ -49,7 +49,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
          * @return An existing [FreeBlock] where [armorStand] belongs to the structure or null
          */
         fun fromArmorStand(armorStand: Entity): FreeBlock? {
-            fun List<Entity>.findByType(type: EntityType) = find { it.type.equals(type) }
+            fun List<Entity>.findByType(type: EntityType) = find { it.type == type }
 
             if (armorStand.passengers.size != 2) return null // fail-fast
             val shulker = armorStand.passengers.findByType(EntityTypes.SHULKER)
@@ -136,7 +136,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             return Sponge.getServer().worlds.map { world ->
                 world.loadedChunks.map { chunk -> // Ensure that only loaded chunks are handled to improve performance
                     chunk.entities
-                            .filter { it.type.equals(EntityTypes.ARMOR_STAND) }
+                            .filter { it.type == EntityTypes.ARMOR_STAND }
                             .mapNotNull { fromArmorStand(it) }
                 }.flatten()
             }.flatten()
@@ -157,6 +157,6 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         }
 
     // The armorStand is the identification of a FreeBlock
-    override fun equals(other: Any?) = other is FreeBlock && other.armorStand.uniqueId.equals(armorStand.uniqueId)
+    override fun equals(other: Any?) = other is FreeBlock && other.armorStand.uniqueId == armorStand.uniqueId
     override fun hashCode() = armorStand.uniqueId.hashCode()
 }

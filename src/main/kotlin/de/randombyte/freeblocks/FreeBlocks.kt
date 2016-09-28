@@ -1,11 +1,15 @@
 package de.randombyte.freeblocks
 
 import com.google.inject.Inject
+import de.randombyte.freeblocks.PlayerEventListeners.Companion.isInEditMode
+import de.randombyte.freeblocks.commands.EditCommand
 import ninja.leaping.configurate.commented.CommentedConfigurationNode
 import ninja.leaping.configurate.loader.ConfigurationLoader
 import org.slf4j.Logger
 import org.spongepowered.api.Sponge
+import org.spongepowered.api.command.spec.CommandSpec
 import org.spongepowered.api.config.DefaultConfig
+import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
 import org.spongepowered.api.event.cause.Cause
 import org.spongepowered.api.event.cause.NamedCause
@@ -15,6 +19,8 @@ import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.game.state.GameInitializationEvent
 import org.spongepowered.api.plugin.Plugin
 import org.spongepowered.api.scheduler.Task
+import org.spongepowered.api.text.Text
+import org.spongepowered.api.text.format.TextColors
 import org.spongepowered.api.util.Axis
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -37,6 +43,22 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
                 listOf(0.005, 0.01, 0.02, 0.03, 0.05, 0.08, 0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.8, 1.0, 2.0, 5.0, 10.0)
 
         var blockedDamagePerSecond = 0
+
+        val LOGO = Text.of(TextColors.BLUE, "[FreeBlocks]")
+
+
+        /**
+         * If this player is the editor it will be reset and all blocks become unselected.
+         *
+         * @return if player was editor
+         */
+        fun resetPlayer(player: Player): Boolean {
+            return if (player.isInEditMode()) {
+                FreeBlocks.currentEditor = null
+                FreeBlock.getSelectedBlocks().forEach { it.selected = false }
+                true
+            } else false
+        }
     }
 
     @Listener
@@ -49,6 +71,14 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
         ScrollListener.init(this)
 
         Sponge.getEventManager().registerListeners(this, PlayerEventListeners())
+
+        Sponge.getCommandManager().register(this, CommandSpec.builder()
+                .child(CommandSpec.builder()
+                        .permission("freeblocks.edit")
+                        .executor(EditCommand())
+                        .build(), "edit")
+                .build(), "freeblocks")
+
         logger.info("$NAME loaded: $VERSION")
 
         if (DEBUG) {
@@ -65,9 +95,9 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
     @Listener
     fun onDamageFreeBlock(event: DamageEntityEvent) {
         if (FreeBlock.getLoadedFreeBlocks().any { freeBlock ->
-            event.targetEntity.equals(freeBlock.armorStand) ||
-            event.targetEntity.equals(freeBlock.fallingBlock) ||
-            event.targetEntity.equals(freeBlock.shulker)
+            event.targetEntity == freeBlock.armorStand ||
+            event.targetEntity == freeBlock.fallingBlock ||
+            event.targetEntity == freeBlock.shulker
         }) {
             event.isCancelled = true
             if (DEBUG) blockedDamagePerSecond++
