@@ -46,7 +46,6 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
 
         val LOGO = Text.of(TextColors.BLUE, "[FreeBlocks]")
 
-
         /**
          * If this player is the editor it will be reset and all blocks become unselected.
          *
