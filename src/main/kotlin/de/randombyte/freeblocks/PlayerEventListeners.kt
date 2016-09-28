@@ -55,7 +55,7 @@ class PlayerEventListeners {
             FreeBlocks.currentMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
                     .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
             event.targetEntity.sendMessage(
-                    Text.of("Changed moveSpeed: ${FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex]}"))
+                    Text.of("Changed movement speed: ${FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex]}"))
         }
     }
 
