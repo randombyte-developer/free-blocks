@@ -20,8 +20,8 @@ class EditCommand : PlayerExecutedCommand() {
             return CommandResult.success()
         } else if (trySettingNewEditor(player)) {
             player.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.GREEN, " Your are in edit mode!"))
-            player.sendMessage(Text.of(TextColors.YELLOW,
-                    "Right click blocks to select, scroll to move, shift scroll to change speed"))
+            player.sendMessage(Text.of(TextColors.YELLOW, "Right click blocks to select, scroll to move, " +
+                            "shift right click to change axis, shift scroll to change speed"))
             return CommandResult.success()
         }
 
