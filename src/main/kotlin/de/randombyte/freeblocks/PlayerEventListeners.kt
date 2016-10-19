@@ -53,15 +53,15 @@ class PlayerEventListeners {
     @Listener
     fun onEditorSneakScrolled(event: CurrentEditorScrolledEvent) {
         if (event.targetEntity.run { isInEditMode() && isSneaking() }) {
-            val nextMoveSpeedIndex = FreeBlocks.currentMoveSpeedIndex + event.direction
-            val actualMoveSpeedIndex = nextMoveSpeedIndex.coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
+            val nextMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
+                    .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
 
-            if (FreeBlocks.currentMoveSpeedIndex != actualMoveSpeedIndex) {
+            if (FreeBlocks.currentMoveSpeedIndex != nextMoveSpeedIndex) {
                 event.targetEntity.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.YELLOW,
-                        " Changed movement speed: ${FreeBlocks.movementSpeeds[actualMoveSpeedIndex]}"))
+                        " Changed movement speed: ${FreeBlocks.movementSpeeds[nextMoveSpeedIndex]}"))
             }
 
-            FreeBlocks.currentMoveSpeedIndex = actualMoveSpeedIndex
+            FreeBlocks.currentMoveSpeedIndex = nextMoveSpeedIndex
         }
     }
 
