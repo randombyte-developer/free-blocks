@@ -11,6 +11,7 @@ import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
 import org.spongepowered.api.event.network.ClientConnectionEvent
 import org.spongepowered.api.text.Text
+import org.spongepowered.api.text.format.TextColors
 import org.spongepowered.api.world.Location
 import org.spongepowered.api.world.extent.Extent
 
@@ -26,7 +27,7 @@ class PlayerEventListeners {
     fun onRightClickSneakOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
         if (player.run { isInEditMode() && isSneaking() }) {
             FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
-            player.sendMessage(Text.of("Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
+            player.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.YELLOW, " Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
         }
     }
 
@@ -52,10 +53,15 @@ class PlayerEventListeners {
     @Listener
     fun onEditorSneakScrolled(event: CurrentEditorScrolledEvent) {
         if (event.targetEntity.run { isInEditMode() && isSneaking() }) {
-            FreeBlocks.currentMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
-                    .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
-            event.targetEntity.sendMessage(
-                    Text.of("Changed movement speed: ${FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex]}"))
+            val nextMoveSpeedIndex = FreeBlocks.currentMoveSpeedIndex + event.direction
+            val actualMoveSpeedIndex = nextMoveSpeedIndex.coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
+
+            if (FreeBlocks.currentMoveSpeedIndex != actualMoveSpeedIndex) {
+                event.targetEntity.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.YELLOW,
+                        " Changed movement speed: ${FreeBlocks.movementSpeeds[actualMoveSpeedIndex]}"))
+            }
+
+            FreeBlocks.currentMoveSpeedIndex = actualMoveSpeedIndex
         }
     }
 
