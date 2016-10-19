@@ -6,11 +6,14 @@ import org.spongepowered.api.data.property.block.SolidCubeProperty
 import org.spongepowered.api.entity.EntityTypes
 import org.spongepowered.api.entity.living.player.Player
 import org.spongepowered.api.event.Listener
+import org.spongepowered.api.event.action.InteractEvent
 import org.spongepowered.api.event.block.InteractBlockEvent
 import org.spongepowered.api.event.entity.InteractEntityEvent
 import org.spongepowered.api.event.filter.cause.First
+import org.spongepowered.api.event.filter.type.Include
 import org.spongepowered.api.event.network.ClientConnectionEvent
 import org.spongepowered.api.text.Text
+import org.spongepowered.api.text.chat.ChatTypes
 import org.spongepowered.api.text.format.TextColors
 import org.spongepowered.api.world.Location
 import org.spongepowered.api.world.extent.Extent
@@ -21,14 +24,6 @@ class PlayerEventListeners {
         fun Player.isSneaking() = getOrElse(Keys.IS_SNEAKING, false)
         fun PropertyHolder.isSolid() = getProperty(SolidCubeProperty::class.java).orElse(null)?.value ?: false
         fun Location<out Extent>.getCenter() = Location(extent, blockPosition.toDouble().add(0.5, 0.0, 0.5))
-    }
-
-    @Listener
-    fun onRightClickSneakOnBlock(event: InteractBlockEvent.Secondary.MainHand, @First player: Player) {
-        if (player.run { isInEditMode() && isSneaking() }) {
-            FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
-            player.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.YELLOW, " Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
-        }
     }
 
     @Listener
@@ -51,17 +46,12 @@ class PlayerEventListeners {
     }
 
     @Listener
-    fun onEditorSneakScrolled(event: CurrentEditorScrolledEvent) {
-        if (event.targetEntity.run { isInEditMode() && isSneaking() }) {
-            val nextMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
-                    .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
-
-            if (FreeBlocks.currentMoveSpeedIndex != nextMoveSpeedIndex) {
-                event.targetEntity.sendMessage(Text.of(FreeBlocks.LOGO, TextColors.YELLOW,
-                        " Changed movement speed: ${FreeBlocks.movementSpeeds[nextMoveSpeedIndex]}"))
-            }
-
-            FreeBlocks.currentMoveSpeedIndex = nextMoveSpeedIndex
+    @Include(InteractBlockEvent.Secondary.MainHand::class, InteractEntityEvent.Secondary.MainHand::class)
+    fun onRightClickSneak(event: InteractEvent, @First player: Player) {
+        if (player.run { isInEditMode() && isSneaking() }) {
+            FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
+            player.sendMessage(Text.of(FreeBlocks.LOGO,
+                    TextColors.YELLOW, " Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
         }
     }
 
@@ -74,9 +64,23 @@ class PlayerEventListeners {
                 val oldPosition = freeBlock.armorStand.location.position
                 val movement = FreeBlocks.currentMoveAxis.toVector3d()
                         .mul(event.direction.toDouble() * FreeBlocks.movementSpeeds[FreeBlocks.currentMoveSpeedIndex])
-                freeBlock.armorStand.location = freeBlock.armorStand.location
-                        .setPosition(oldPosition.add(movement))
+                freeBlock.armorStand.location = freeBlock.armorStand.location.setPosition(oldPosition.add(movement))
             }
+        }
+    }
+
+    @Listener
+    fun onEditorSneakScrolled(event: CurrentEditorScrolledEvent) {
+        if (event.targetEntity.run { isInEditMode() && isSneaking() }) {
+            val nextMoveSpeedIndex = (FreeBlocks.currentMoveSpeedIndex + event.direction)
+                    .coerceIn(0, FreeBlocks.movementSpeeds.lastIndex)
+
+            if (FreeBlocks.currentMoveSpeedIndex != nextMoveSpeedIndex) {
+                event.targetEntity.sendMessage(ChatTypes.ACTION_BAR, Text.of(FreeBlocks.LOGO, TextColors.YELLOW,
+                        " Movement speed: ${FreeBlocks.movementSpeeds[nextMoveSpeedIndex]}"))
+            }
+
+            FreeBlocks.currentMoveSpeedIndex = nextMoveSpeedIndex
         }
     }
 
