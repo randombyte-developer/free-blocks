@@ -17,6 +17,7 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnCause
 import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes
 import org.spongepowered.api.event.entity.DamageEntityEvent
 import org.spongepowered.api.event.game.state.GameInitializationEvent
+import org.spongepowered.api.event.game.state.GameStoppingServerEvent
 import org.spongepowered.api.plugin.Plugin
 import org.spongepowered.api.scheduler.Task
 import org.spongepowered.api.text.Text
@@ -87,6 +88,12 @@ class FreeBlocks @Inject constructor(val logger: Logger, @DefaultConfig(sharedRo
             }.submit(this)
         }
     }
+
+    /**
+     * Ensure all FreeBlocks get deselected before world saving. TODO: doesn't work
+     */
+    @Listener
+    fun onShutdown(event: GameStoppingServerEvent) = FreeBlock.getSelectedBlocks().forEach { it.selected = false }
 
     /**
      * Prevents a [FreeBlock] from taking damage(lava, fire, water, suffocating in blocks...)

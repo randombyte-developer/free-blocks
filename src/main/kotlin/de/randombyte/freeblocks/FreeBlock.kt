@@ -63,6 +63,13 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         }
 
         /**
+         * Allows passing the Shulker or FallingBlock entity instead of getting the ArmorStand,
+         * apart from that it works like [fromArmorStand].
+         */
+        fun fromPassengerEntity(passenger: Entity): FreeBlock? =
+                if (passenger.vehicle.isPresent) fromArmorStand(passenger.vehicle.get()) else null
+
+        /**
          * Removes an existing block at [location] and builds the armorStand-shulker-fallingSand structure. The [blockState]
          * defines the appearance of the falling sand.
          * @return The [FreeBlock] that was generated
@@ -155,6 +162,11 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
             shulker.offer(Keys.GLOWING, value)
             field = value
         }
+
+    /**
+     * Removes the FreeBlock from the world
+     */
+    fun remove() = listOf(armorStand, fallingBlock, shulker).forEach(Entity::remove)
 
     // The armorStand is the identification of a FreeBlock
     override fun equals(other: Any?) = other is FreeBlock && other.armorStand.uniqueId == armorStand.uniqueId

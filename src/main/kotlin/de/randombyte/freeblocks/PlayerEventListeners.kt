@@ -39,9 +39,7 @@ class PlayerEventListeners {
     @Listener
     fun onRightClickOnShulker(event: InteractEntityEvent.Secondary.MainHand, @First player: Player) {
         if (player.run { isInEditMode() && !isSneaking() } && event.targetEntity.type == EntityTypes.SHULKER) {
-            event.targetEntity.vehicle.ifPresent { vehicle ->
-                FreeBlock.fromArmorStand(vehicle)?.apply { selected = !selected }
-            }
+            FreeBlock.fromPassengerEntity(event.targetEntity)?.apply { selected = !selected }
         }
     }
 
