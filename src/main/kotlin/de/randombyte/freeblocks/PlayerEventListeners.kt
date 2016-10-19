@@ -50,7 +50,7 @@ class PlayerEventListeners {
     fun onRightClickSneak(event: InteractEvent, @First player: Player) {
         if (player.run { isInEditMode() && isSneaking() }) {
             FreeBlocks.currentMoveAxis = FreeBlocks.currentMoveAxis.cycleNext()
-            player.sendMessage(Text.of(FreeBlocks.LOGO,
+            player.sendMessage(ChatTypes.ACTION_BAR, Text.of(FreeBlocks.LOGO,
                     TextColors.YELLOW, " Switched to ${FreeBlocks.currentMoveAxis.name}-axis!"))
         }
     }
