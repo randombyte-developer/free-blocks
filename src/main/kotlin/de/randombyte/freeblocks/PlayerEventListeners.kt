@@ -18,6 +18,16 @@ import org.spongepowered.api.text.format.TextColors
 import org.spongepowered.api.world.Location
 import org.spongepowered.api.world.extent.Extent
 
+/**
+ * Manages all player interactions(creating, moving, destroying FreeBlocks, etc.).
+ *
+ * The MainHand version of all events is used to only have the event fired once for one action. If
+ * the superclass/superinterface would be used(e.g. InteractBlockEvent.Secondary instead of
+ * InteractBlockEvent.Secondary.MainHand) the event gets fired two times. That's a problem for some
+ * interactions like de/selecting a FreeBlock.
+ * But there is one exception: InteractEvent.Primary, which gets fired only once. One could use the
+ * MainHand version but there might be cases where only the OffHand version gets fired.
+ */
 class PlayerEventListeners {
     companion object {
         fun Player.isInEditMode() = FreeBlocks.currentEditor?.equals(uniqueId) ?: false
@@ -40,6 +50,13 @@ class PlayerEventListeners {
     fun onRightClickOnShulker(event: InteractEntityEvent.Secondary.MainHand, @First player: Player) {
         if (player.run { isInEditMode() && !isSneaking() } && event.targetEntity.type == EntityTypes.SHULKER) {
             FreeBlock.fromPassengerEntity(event.targetEntity)?.apply { selected = !selected }
+        }
+    }
+
+    @Listener
+    fun onLeftClickOnShulker(event: InteractEntityEvent.Primary, @First player: Player) {
+        if (player.run { isInEditMode() && !isSneaking() } && event.targetEntity.type == EntityTypes.SHULKER) {
+            FreeBlock.fromPassengerEntity(event.targetEntity)?.remove()
         }
     }
 
