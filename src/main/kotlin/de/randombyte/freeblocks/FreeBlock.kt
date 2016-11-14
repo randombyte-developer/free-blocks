@@ -20,7 +20,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
     companion object {
         private var initialized = false
         private lateinit var spawnCause: Cause
-        private lateinit var worldModiferCause: Cause
+        private lateinit var worldModifierCause: Cause
 
         private val _selectedBlocks = mutableSetOf<FreeBlock>()
         fun getSelectedBlocks() = _selectedBlocks.toList()
@@ -31,7 +31,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
         fun init(spawnCause: Cause, worldModifierCause: Cause, pluginInstance: Any) {
             if (initialized) throw IllegalStateException("Can't initialize twice!")
             this.spawnCause = spawnCause
-            this.worldModiferCause = worldModifierCause
+            this.worldModifierCause = worldModifierCause
             Task.builder().execute { ->
                 getLoadedFreeBlocks().forEach { freeBlock ->
                     preventFallingBlockTurningIntoNormalBlock(freeBlock.fallingBlock)
@@ -75,7 +75,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
          * @return The [FreeBlock] that was generated
          */
         fun create(location: Location<out Extent>, blockState: BlockState): FreeBlock {
-            if (location.hasBlock()) location.setBlock(BlockTypes.AIR.defaultState, worldModiferCause)
+            if (location.hasBlock()) location.setBlock(BlockTypes.AIR.defaultState, worldModifierCause)
 
             val armorStand = spawnArmorStand(location)
             val fallingBlock = spawnFallingBlock(location, blockState)
@@ -105,7 +105,7 @@ class FreeBlock private constructor(val armorStand: Entity, val fallingBlock: En
          */
         private fun spawnArmorStand(location: Location<out Extent>): Entity = spawnEntity(location, EntityTypes.ARMOR_STAND, {
             offer(Keys.INVISIBLE, true)
-            offer(Keys.ARMOR_STAND_HAS_GRAVITY, false)
+            offer(Keys.HAS_GRAVITY, false)
             offer(Keys.ARMOR_STAND_MARKER, true)
             rotation = Vector3d.ZERO // without explicitly setting this it is always a bit off
         })

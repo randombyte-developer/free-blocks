@@ -1,5 +1,5 @@
 plugins {
-    id "com.zoltu.kotlin" version "1.0.3"
+    id "com.zoltu.kotlin" version "1.0.4"
     id "com.qixalite.spongestart" version "1.5.2"
 }
 
@@ -13,7 +13,6 @@ repositories {
 
 spongestart {
     eula true
-    spongeVanillaBuild "1.10.2-5.0.0-BETA-113"
 }
 
 configurations {
@@ -21,8 +20,8 @@ configurations {
     compile.extendsFrom shade
 }
 
-ext.spongeApiVersion = "5.0.0-SNAPSHOT"
-ext.kotlinVersion = "1.0.3"
+ext.spongeApiVersion = "5.0.0"
+ext.kotlinVersion = "1.0.4"
 
 dependencies {
     shade "org.jetbrains.kotlin:kotlin-runtime:$kotlinVersion"
