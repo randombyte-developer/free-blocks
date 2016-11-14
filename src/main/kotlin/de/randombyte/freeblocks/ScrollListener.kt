@@ -22,7 +22,7 @@ object ScrollListener {
 
     @Listener
     fun onChangeSelectedSlot(event: ChangeInventoryEvent.Held, @Root player: Player) {
-        if (FreeBlocks.currentEditor == null) return
+        if (FreeBlocks.currentEditor != player.uniqueId) return
         val direction = getScrollingDirection()
         if (direction == 0 || Math.abs(direction) > 3) return // Scrolled too fast todo
         val scrolledEvent = CurrentEditorScrolledEvent(
